@@ -19,9 +19,6 @@ type CircularQueue struct {
 func NewCircularQueue(size int) CircularQueue {
 	return CircularQueue{
 		values: make([]int, size),
-		size:   0,
-		front:  0,
-		back:   0,
 	}
 }
 
@@ -59,17 +56,11 @@ func (q *CircularQueue) Back() int {
 }
 
 func (q *CircularQueue) Empty() bool {
-	if q.size == 0 {
-		return true
-	}
-	return false
+	return q.size == 0
 }
 
 func (q *CircularQueue) Full() bool {
-	if q.size == len(q.values) {
-		return true
-	}
-	return false
+	return q.size == len(q.values)
 }
 
 func TestCircularQueue(t *testing.T) {
