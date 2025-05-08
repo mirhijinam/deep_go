@@ -9,32 +9,131 @@ import (
 
 // go test -v homework_test.go
 
+type Node struct {
+	k int
+	v int
+	l *Node
+	r *Node
+}
+
 type OrderedMap struct {
-	// need to implement
+	rt *Node
+	sz int
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+	return OrderedMap{}
+}
+
+func (m *OrderedMap) ins(n *Node, k, v int) {
+	if k < n.k {
+		if n.l == nil {
+			n.l = &Node{
+				k: k,
+				v: v,
+			}
+			m.sz++
+			return
+		}
+		m.ins(n.l, k, v)
+	}
+	if k > n.k {
+		if n.r == nil {
+			n.r = &Node{
+				k: k,
+				v: v,
+			}
+			m.sz++
+			return
+		}
+		m.ins(n.r, k, v)
+	}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	if m.rt == nil {
+		m.rt = &Node{
+			k: key,
+			v: value,
+		}
+		m.sz++
+		return
+	}
+
+	m.ins(m.rt, key, value)
+}
+
+func getsuc(n *Node) *Node {
+	n = n.r
+	for n != nil && n.l != nil {
+		n = n.l
+	}
+	return n
+}
+
+func (m *OrderedMap) del(n *Node, k int) *Node {
+	if n == nil {
+		return nil
+	}
+
+	if n.k < k {
+		n.r = m.del(n.r, k)
+	} else if n.k > k {
+		n.l = m.del(n.l, k)
+	} else {
+		m.sz--
+		if n.l == nil {
+			n = n.r
+		} else if n.r == nil {
+			n = n.l
+		} else {
+			suc := getsuc(n)
+			n.k, n.v = suc.k, suc.v
+			m.del(n.r, suc.k)
+		}
+	}
+
+	return n
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	if m.rt == nil {
+		return
+	}
+	m.rt = m.del(m.rt, key)
+}
+
+func find(n *Node, k int) bool {
+	if n == nil {
+		return false
+	} else if n.k == k {
+		return true
+	}
+	return find(n.l, k) || find(n.r, k)
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	return find(m.rt, key)
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	return m.sz
+}
+
+func inord(n *Node, action func(int, int)) {
+	if n == nil {
+		return
+	}
+	inord(n.l, action)
+	action(n.k, n.v)
+	inord(n.r, action)
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	if m.rt == nil {
+		return
+	}
+	inord(m.rt, action)
 }
 
 func TestCircularQueue(t *testing.T) {
