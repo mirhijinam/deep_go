@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"unsafe"
@@ -11,7 +12,14 @@ import (
 // go test -v homework_test.go
 
 func Defragment(memory []byte, pointers []unsafe.Pointer) {
-	// need to implement
+	for i := range pointers {
+		if pointers[i] != unsafe.Pointer(&memory[i]) {
+			memory[i] = *(*byte)(pointers[i])
+			*(*byte)(pointers[i]) = 0x00
+			pointers[i] = unsafe.Pointer(&memory[i])
+		}
+	}
+
 }
 
 func TestDefragmentation(t *testing.T) {
@@ -43,7 +51,9 @@ func TestDefragmentation(t *testing.T) {
 		0x00, 0x00, 0x00, 0x00,
 	}
 
+	fmt.Println(fragmentedMemory)
 	Defragment(fragmentedMemory, fragmentedPointers)
+	fmt.Println(fragmentedMemory)
 	assert.True(t, reflect.DeepEqual(defragmentedMemory, fragmentedMemory))
 	assert.True(t, reflect.DeepEqual(defragmentedPointers, fragmentedPointers))
 }
